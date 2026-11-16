@@ -13,11 +13,32 @@ import {
     FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { authClient } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
 import React from "react"
+import toast from "react-hot-toast"
 
 const SignInPage = () => {
-    const handleSignIn = (e: React.FormEvent) => {
+     const router = useRouter();
+    const handleSignIn = async(e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        const formValue = new FormData(e.currentTarget);
+                const user = Object.fromEntries(formValue.entries()) as {
+                    email: string
+                    password: string
+                }
+                const { data, error } = await authClient.signIn.email({
+                    ...user,
+                })
+                if (data) {
+                    toast.success("Sign in successful!");
+                    console.log(data)
+                    router.push('/');
+                }
+                if (error) {
+                    toast.error("Sign in failed: " + error.message);
+                    console.log(error);
+                }
         
     }
 

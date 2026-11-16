@@ -34,12 +34,12 @@ const SignUpPage = () => {
             ...user,
         })
         if (data) {
-            toast.success("Sign in successful!");
+            toast.success("Sign up successful!");
             console.log(data)
             // router.push('/');
         }
         if (error) {
-            toast.error("Sign in failed: " + error.message);
+            toast.error("Sign up failed: " + error.message);
             console.log(error);
         }
     }

@@ -21,6 +21,7 @@ import toast from "react-hot-toast"
 
 const SignUpPage = () => {
     const router = useRouter();
+    const [role, setRole] = React.useState<"seeker" | "recruiter" | "admin">("seeker")
     const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formValue = new FormData(e.currentTarget);
@@ -30,9 +31,11 @@ const SignUpPage = () => {
             email: string
             password: string
         }
-        const { data, error } = await authClient.signUp.email({
+        const signUpData = {
             ...user,
-        })
+            role,
+        }
+        const { data, error } = await authClient.signUp.email(signUpData)
         if (data) {
             toast.success("Sign up successful!");
             console.log(data)
@@ -68,7 +71,7 @@ const SignUpPage = () => {
                                             required
                                         />
                                     </Field>
-                                     <Field>
+                                    <Field>
                                         <FieldLabel htmlFor="image">Profile Image URL</FieldLabel>
                                         <Input
                                             id="image"
@@ -99,6 +102,22 @@ const SignUpPage = () => {
                                             placeholder="*********"
                                             required
                                         />
+                                    </Field>
+                                    <Field >
+                                        <FieldLabel htmlFor="role">I am a…</FieldLabel>
+                                        <select
+                                            id="role"
+                                            name="role"
+                                            value={role}
+                                            onChange={(e) =>
+                                                setRole(e.target.value as "seeker" | "recruiter" | "admin")
+                                            }
+                                            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                        >
+                                            <option value="seeker">Job Seeker</option>
+                                            <option value="recruiter">Recruiter</option>
+                                            <option value="admin">Admin</option>
+                                        </select>
                                     </Field>
                                     <Field>
                                         <Button type="submit" className="w-full">

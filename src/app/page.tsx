@@ -1,10 +1,11 @@
 import Hero from "@/components/Hero";
-import { Button } from "@/components/ui/button";
+import Navbar from "@/components/Navbar";
 
 export default function Page() {
   return (
-   <div className="">
-    <Hero />
-   </div>
-  )
+    <div className=" bg-[#07070c]">
+      <Navbar />
+      <Hero />
+    </div>
+  );
 }

@@ -37,14 +37,15 @@ const Navbar = () => {
         { name: 'Browse Jobs', href: '/jobs' },
         { name: 'Company', href: '/company' },
         { name: 'Pricing', href: '/pricing' },
+        { name: 'Dashboard', href: `/dashboard/${session?.user?.role || 'seeker'}` },
     ];
 
     const handleSignout = async () => {
         await authClient.signOut();
     }
     return (
-        <nav className=" sticky top-0 z-50">
-            <div className="flex justify-between items-center bg-[#161624] mx-auto max-w-6xl px-4 py-3 rounded-b-xl">
+        <nav className=" sticky top-0 z-50 ">
+            <div className="flex justify-between items-center bg-background mx-auto max-w-6xl px-4 py-3">
                 {/* Logo */}
                 <Link href="/">
                     <Image
@@ -59,12 +60,12 @@ const Navbar = () => {
 
                 {/* Desktop Menu */}
                 <div className="hidden md:flex gap-4 items-center">
-                    <ul className="flex gap-6 items-center text-white">
+                    <ul className="flex gap-6 items-center dark:text-white">
                         {navLinks.map((link) => (
                             <li key={link.name}>
                                 <Link
                                     href={link.href}
-                                    className={`hover:text-slate-300 transition ${pathname === link.href ? 'text-yellow-400 font-semibold' : ''
+                                    className={`hover:text-slate-600 transition ${pathname === link.href ? 'text-yellow-400 font-semibold' : ''
                                         }`}
                                 >
                                     {link.name}

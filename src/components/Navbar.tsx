@@ -34,7 +34,7 @@ const Navbar = () => {
     const user = session?.user;
 
     const navLinks = [
-        { name: 'Browse Jobs', href: '/jobs' },
+        { name: 'Browse Jobs', href: '/browse-jobs' },
         { name: 'Company', href: '/company' },
         { name: 'Pricing', href: '/pricing' },
         { name: 'Dashboard', href: `/dashboard/${session?.user?.role || 'seeker'}` },

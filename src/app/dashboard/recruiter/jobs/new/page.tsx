@@ -22,12 +22,67 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { useState } from "react"
+import toast from "react-hot-toast"
+import { createJob } from "@/lib/actions/job"
 
 const JOB_TYPES = ["Full-time", "Part-time", "Contract", "Internship"] as const
 
 const NewJobPage = () => {
-    const handlePostJob = () => {
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
+    const handlePostJob = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+
+        const form = e.currentTarget
+        const data = new FormData(form)
+        const values = Object.fromEntries(data.entries())
+
+        const payload = {
+            title: (values.title as string)?.trim(),
+            company: (values.company as string)?.trim(),
+            jobCategory: values.jobCategory as string,
+            jobType: values.jobType as string,
+            isRemote: values.isRemote === "on",
+            jobLocation: (values.jobLocation as string)?.trim(),
+            deadlineDate: values.deadlineDate as string,
+            minSalary: values.minSalary ? Number(values.minSalary) : null,
+            maxSalary: values.maxSalary ? Number(values.maxSalary) : null,
+            frequency: values.frequency as string,
+        }
+
+        const { title, company, jobLocation, deadlineDate, minSalary, maxSalary } = payload
+
+        // Basic validation
+        if (!title || !company || !jobLocation || !deadlineDate) {
+            setError("Please fill in all required fields.")
+            return
+        }
+        if (minSalary !== null && maxSalary !== null && minSalary > maxSalary) {
+            setError("Min salary cannot be greater than max salary.")
+            return
+        }
+
+        try {
+            setLoading(true)
+            setError(null)
+
+            const result = await createJob(payload)
+            console.log(result)
+
+            if (result && typeof result === "object" && "error" in result && result.error) {
+                const message = typeof result.error === "string" ? result.error : "Failed to post job."
+                toast.error(message)
+                throw new Error(message)
+            }
+
+            toast.success("Job Posted Successfully.")
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Something went wrong.")
+        } finally {
+            setLoading(false)
+        }
     }
     return (
         <div className="w-full max-w-2xl">
@@ -66,11 +121,11 @@ const NewJobPage = () => {
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectGroup>
-                                                <SelectItem value="01">Engineering & Tech</SelectItem>
-                                                <SelectItem value="02">Design</SelectItem>
-                                                <SelectItem value="03">Marketing</SelectItem>
-                                                <SelectItem value="04">Sales</SelectItem>
-                                                <SelectItem value="05">Operations</SelectItem>
+                                                <SelectItem value="Engineering & Tech">Engineering & Tech</SelectItem>
+                                                <SelectItem value="Design">Design</SelectItem>
+                                                <SelectItem value="Marketing">Marketing</SelectItem>
+                                                <SelectItem value="Sales">Sales</SelectItem>
+                                                <SelectItem value="Operations">Operations</SelectItem>
                                             </SelectGroup>
                                         </SelectContent>
                                     </Select>
@@ -85,7 +140,7 @@ const NewJobPage = () => {
                                                 type="radio"
                                                 id={`jobType-${type}`}
                                                 name="jobType"
-                                                value={type}
+                                                value={type.toLocaleLowerCase()}
                                                 defaultChecked={type === "Full-time"}
                                                 className="h-4 w-4"
                                             />
@@ -156,7 +211,7 @@ const NewJobPage = () => {
 
                     <FieldSeparator />
 
-                   <FieldSet>
+                    <FieldSet>
                         <FieldTitle>Responsibilities & Requirements</FieldTitle>
                         <FieldDescription>
                             In the descriptions below, the following will be auto-generated for this posting.
@@ -182,9 +237,9 @@ const NewJobPage = () => {
                         </FieldGroup>
                     </FieldSet>
                 </FieldGroup>
-
-                <Button type="submit" className="mt-6">
-                    Post Job
+                {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+                <Button type="submit" className="mt-6" disabled={loading}>
+                    {loading ? "Posting..." : "Post Job"}
                 </Button>
             </form>
         </div>

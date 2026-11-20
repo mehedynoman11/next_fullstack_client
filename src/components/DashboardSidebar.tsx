@@ -14,6 +14,8 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import {
   Sidebar,
@@ -36,37 +38,144 @@ type MenuItem = {
 
 const menuItemByRole: Record<Role, MenuItem[]> = {
   seeker: [
-    { id: "overview", name: "Overview", url: "/dashboard/seeker", item: LayoutDashboard },
-    { id: "browse-jobs", name: "Browse Jobs", url: "/jobs", item: Briefcase },
-    { id: "saved-jobs", name: "Saved Jobs", url: "/dashboard/seeker/saved", item: Bookmark },
-    { id: "applications", name: "My Applications", url: "/dashboard/seeker/applications", item: FileText },
-    { id: "messages", name: "Messages", url: "/dashboard/seeker/messages", item: MessageSquare },
-    { id: "profile", name: "Profile", url: "/dashboard/seeker/profile", item: UserRound },
-    { id: "settings", name: "Settings", url: "/dashboard/seeker/settings", item: Settings },
+    {
+      id: "overview",
+      name: "Overview",
+      url: "/dashboard/seeker",
+      item: LayoutDashboard,
+    },
+    { id: "browse-jobs", name: "Browse Jobs", url: "/browse-jobs", item: Briefcase },
+    {
+      id: "saved-jobs",
+      name: "Saved Jobs",
+      url: "/dashboard/seeker/saved",
+      item: Bookmark,
+    },
+    {
+      id: "applications",
+      name: "My Applications",
+      url: "/dashboard/seeker/applications",
+      item: FileText,
+    },
+    {
+      id: "messages",
+      name: "Messages",
+      url: "/dashboard/seeker/messages",
+      item: MessageSquare,
+    },
+    {
+      id: "profile",
+      name: "Profile",
+      url: "/dashboard/seeker/profile",
+      item: UserRound,
+    },
+    {
+      id: "settings",
+      name: "Settings",
+      url: "/dashboard/seeker/settings",
+      item: Settings,
+    },
   ],
   recruiter: [
-    { id: "overview", name: "Overview", url: "/dashboard/recruiter", item: LayoutDashboard },
-    { id: "post-job", name: "Post a Job", url: "/dashboard/recruiter/post-job", item: PlusCircle },
-    { id: "manage-jobs", name: "Manage Jobs", url: "/dashboard/recruiter/jobs", item: Briefcase },
-    { id: "applicants", name: "Applicants", url: "/dashboard/recruiter/applicants", item: Users },
-    { id: "messages", name: "Messages", url: "/dashboard/recruiter/messages", item: MessageSquare },
-    { id: "company", name: "Company Profile", url: "/dashboard/recruiter/company", item: Building2 },
-    { id: "settings", name: "Settings", url: "/dashboard/recruiter/settings", item: Settings },
+    {
+      id: "overview",
+      name: "Overview",
+      url: "/dashboard/recruiter",
+      item: LayoutDashboard,
+    },
+    {
+      id: "post-job",
+      name: "Post a Job",
+      url: "/dashboard/recruiter/jobs/new",
+      item: PlusCircle,
+    },
+    {
+      id: "manage-jobs",
+      name: "Manage Jobs",
+      url: "/dashboard/recruiter/jobs",
+      item: Briefcase,
+    },
+    {
+      id: "applicants",
+      name: "Applicants",
+      url: "/dashboard/recruiter/applicants",
+      item: Users,
+    },
+    {
+      id: "messages",
+      name: "Messages",
+      url: "/dashboard/recruiter/messages",
+      item: MessageSquare,
+    },
+    {
+      id: "company",
+      name: "Company Profile",
+      url: "/dashboard/recruiter/company",
+      item: Building2,
+    },
+    {
+      id: "settings",
+      name: "Settings",
+      url: "/dashboard/recruiter/settings",
+      item: Settings,
+    },
   ],
   admin: [
-    { id: "overview", name: "Overview", url: "/dashboard/admin", item: LayoutDashboard },
+    {
+      id: "overview",
+      name: "Overview",
+      url: "/dashboard/admin",
+      item: LayoutDashboard,
+    },
     { id: "users", name: "Users", url: "/dashboard/admin/users", item: Users },
-    { id: "companies", name: "Companies", url: "/dashboard/admin/companies", item: Building2 },
+    {
+      id: "companies",
+      name: "Companies",
+      url: "/dashboard/admin/companies",
+      item: Building2,
+    },
     { id: "jobs", name: "Jobs", url: "/dashboard/admin/jobs", item: Briefcase },
-    { id: "applications", name: "Applications", url: "/dashboard/admin/applications", item: FileText },
-    { id: "analytics", name: "Analytics", url: "/dashboard/admin/analytics", item: BarChart3 },
-    { id: "settings", name: "Settings", url: "/dashboard/admin/settings", item: Settings },
+    {
+      id: "applications",
+      name: "Applications",
+      url: "/dashboard/admin/applications",
+      item: FileText,
+    },
+    {
+      id: "analytics",
+      name: "Analytics",
+      url: "/dashboard/admin/analytics",
+      item: BarChart3,
+    },
+    {
+      id: "settings",
+      name: "Settings",
+      url: "/dashboard/admin/settings",
+      item: Settings,
+    },
   ],
+};
+
+const isRole = (value: unknown): value is Role =>
+  value === "seeker" || value === "recruiter" || value === "admin";
+
+// `/dashboard/<role>/...` -> "<role>"
+const roleFromPath = (pathname: string): Role | null => {
+  const segment = pathname.split("/")[2];
+  return isRole(segment) ? segment : null;
 };
 
 const DashboardSidebar = () => {
   const { data: session } = useSession();
-  const role: Role = session?.user?.role ?? "seeker";
+  const pathname = usePathname();
+
+  // The session is the source of truth. Accounts created before `role` existed
+  // (and OAuth accounts) can still have no role, so fall back to the role of the
+  // dashboard being viewed instead of always rendering the seeker menu.
+  const sessionRole = session?.user?.role;
+  const role: Role = isRole(sessionRole)
+    ? sessionRole
+    : (roleFromPath(pathname) ?? "seeker");
 
   return (
     <Sidebar>
@@ -76,7 +185,7 @@ const DashboardSidebar = () => {
           <SidebarMenu>
             {menuItemByRole[role].map((item) => (
               <SidebarMenuItem key={item.id}>
-                <SidebarMenuButton render={<a href={item.url} />}>
+                <SidebarMenuButton render={<Link href={item.url} />}>
                   <item.item />
                   <span>{item.name}</span>
                 </SidebarMenuButton>

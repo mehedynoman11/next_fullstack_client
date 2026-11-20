@@ -5,7 +5,7 @@ import JobInfoCard from "@/components/JobInfoCard";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { IJob } from "@/lib/actions/job";
-import { getJobs } from "@/lib/api/job";
+import { getJobDetails } from "@/lib/api/job";
 import { formatLocation, formatSalary } from "@/lib/job-format";
 
 const JobDetailsPage = async ({
@@ -14,8 +14,7 @@ const JobDetailsPage = async ({
   params: Promise<{ id: string }>;
 }) => {
   const { id } = await params;
-  const jobs: IJob[] = await getJobs("");
-  const job = jobs.find((j) => j._id === id);
+  const job: IJob = await getJobDetails(id);
 
   if (!job) {
     return (
@@ -40,6 +39,7 @@ const JobDetailsPage = async ({
             title={job.title}
             company={job.company}
             verified
+            job={job}
           />
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

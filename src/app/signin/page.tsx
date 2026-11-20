@@ -14,12 +14,14 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth-client"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import React from "react"
 import toast from "react-hot-toast"
 
 const SignInPage = () => {
      const router = useRouter();
+     const searchParams = useSearchParams();
+     const redirectTo = searchParams.get("redirectTo") ?? '/';
     const handleSignIn = async(e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const formValue = new FormData(e.currentTarget);
@@ -29,6 +31,7 @@ const SignInPage = () => {
                 }
                 const { data, error } = await authClient.signIn.email({
                     ...user,
+                    callbackURL: redirectTo,
                 })
                 if (data) {
                     toast.success("Sign in successful!");

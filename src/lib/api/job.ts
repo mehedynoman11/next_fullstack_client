@@ -31,3 +31,12 @@ export const getJobs = async (query = '') => {
   }
   return res.json();
 };
+
+export const getJobDetails = async (id:string) => {
+  const res = await fetch(`${process.env.BASE_URL}/jobs/${id}`)
+  if (!res){
+    console.error("Something wen wrong.");
+    toast.error("fetch failed!");
+  }
+  return res.json();
+};

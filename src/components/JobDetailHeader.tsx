@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { Bookmark, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import ApplyNow from "./ApplyNow";
+import { IJob } from "@/lib/actions/job";
 
 type JobDetailHeaderProps = {
   title: string;
   company: string;
   verified?: boolean;
   href?: string;
+  job: IJob;
 };
 
 function JobDetailHeader({
@@ -14,6 +17,7 @@ function JobDetailHeader({
   company,
   verified = false,
   href = "#",
+  job
 }: JobDetailHeaderProps) {
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -42,12 +46,7 @@ function JobDetailHeader({
         >
           <Bookmark className="size-4" />
         </a>
-        <Link
-          href={href}
-          className="bg-[#6d5df6] hover:bg-[#5c4ce8] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-        >
-          Apply Now
-        </Link>
+        <ApplyNow href={href} job={job}/>
       </div>
     </div>
   );

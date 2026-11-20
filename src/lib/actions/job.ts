@@ -23,3 +23,14 @@ export const createJob = async (data: Record<string, unknown>) => {
 
     return res.json()
 }
+
+
+export const applyJob = async (data: Record<string, unknown>) => {
+    const res = await fetch(`${BASE_URL}/applications`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    })
+
+    return res.json()
+}
